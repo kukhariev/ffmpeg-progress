@@ -10,9 +10,9 @@ export interface FFMpegProgressData {
   dup?: string;
   drop?: string;
   speed?: string;
-  time_ms?: number;
+  time_ms?: number; // milliseconds
   remaining?: number; // milliseconds
-  progress?: number; // procentage
+  progress?: number; // percentage
 }
 
 const durationRegex = /Duration:[\n\s]?(.*)[\n\s]?, start:/;

@@ -1,7 +1,7 @@
 # ffmpeg-progress
 
-[![npm](https://img.shields.io/npm/v/@dropb/ffmpeg-progress.svg?)](https://www.npmjs.com/package/@dropb/ffmpeg)
-[![build](https://img.shields.io/travis/kukhariev/ffmpeg-progress.svg?)](https://travis-ci.org/kukhariev/ffmpeg)
+[![npm](https://img.shields.io/npm/v/@dropb/ffmpeg-progress.svg?)](https://www.npmjs.com/package/@dropb/ffmpeg-progress)
+[![build](https://img.shields.io/travis/kukhariev/ffmpeg-progress.svg?)](https://travis-ci.org/kukhariev/ffmpeg-progress)
 
 Extract progress status from FFMPEG stderr
 
@@ -72,7 +72,6 @@ ffmpeg.on('close', code => {
   remaining: 0 }
 DONE.
 */
-
 ```
 
 ## License
