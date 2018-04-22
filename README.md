@@ -11,13 +11,13 @@ Extract progress status from FFMPEG stderr
 npm install  @dropb/ffmpeg-progress
 ```
 
-## Example
+## Usage example
 
 ```js
 const FFMPEG_PATH = '/usr/bin/ffmpeg';
 
 const { spawn } = require('child_process');
-const { FFMpegProgress } = require('../dist/');
+const { FFMpegProgress } = require('@dropb/ffmpeg-progress');
 
 const args = ['-i', 'path/to/input', '-f', 'mp4', 'path/to/output'];
 const ffmpegProgress = new FFMpegProgress();
@@ -73,6 +73,20 @@ ffmpeg.on('close', code => {
 DONE.
 */
 ```
+
+## API
+
+```ts
+new FFMpegProgress(duration?: number)
+```
+
+Creates an instance of FFMpegProgress.
+(optional) `duration` - override video duration .
+
+public properties:
+
+* `exitMessage` - last ffmpeg stderr message
+* `duration`
 
 ## License
 
