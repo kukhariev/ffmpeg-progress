@@ -15,14 +15,14 @@ export interface FFMpegProgressData {
   progress?: number; // percentage
 }
 
-const durationRegex = /Duration:[\n\s]?(.*)[\n\s]?, start:/;
+const durationRegex = /Duration:[\n\s]?(.*)[\n\s]?, start:[\n\s]?(.*)\,/;
 
 /**
- * convert time String(HH:MM:SS.mss) to ms
+ * convert HH:MM:SS.mss to milliseconds
  */
 function timeString2ms(timeString: string): number {
-  const [h, m, s] = timeString.split(':').map(v => parseFloat(v) * 1000);
-  return Math.round(h * 3600 + m * 60 + s);
+  const [h, m, s] = timeString.split(':');
+  return (+h * 36e5 + +m * 6e4 + +s * 1e3) | 0;
 }
 /**
  *
@@ -30,15 +30,15 @@ function timeString2ms(timeString: string): number {
 export class FFMpegProgress extends Transform {
   private acc = '';
   exitMessage = '';
-  duration?: number;
-  constructor() {
+
+  constructor(public duration: number = 0) {
     super({
       readableObjectMode: true,
       writableObjectMode: true
     });
   }
 
-  _transform(chunk: Buffer, encoding, done) {
+  _transform(chunk: Buffer, encoding: string, done: Function) {
     const str: string = chunk.toString();
     if (str.indexOf('frame=') === 0) {
       const data: FFMpegProgressData = {};
@@ -52,10 +52,12 @@ export class FFMpegProgress extends Transform {
           : (data[info[i]] = info[i + 1]);
       }
       data.time_ms = timeString2ms(data.time);
-      data.progress = +(100 * data.time_ms / this.duration).toFixed(2);
-      data.remaining = Math.floor(
-        (this.duration - data.time_ms) * parseFloat(data.speed)
-      );
+      if (this.duration) {
+        data.progress = +(100 * data.time_ms / this.duration).toFixed(2);
+        data.remaining = Math.floor(
+          (this.duration - data.time_ms) * parseFloat(data.speed)
+        );
+      }
       this.push(data);
     } else {
       if (!this.duration) {
