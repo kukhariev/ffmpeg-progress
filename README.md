@@ -81,7 +81,7 @@ new FFMpegProgress(duration?: number)
 ```
 
 Creates an instance of FFMpegProgress.
-(optional) `duration` - override video duration .
+(optional) `duration` - override video duration. Default - auto detect.
 
 public properties:
 
