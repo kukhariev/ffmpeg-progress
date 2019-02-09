@@ -5,7 +5,6 @@ const tmp = os.tmpdir();
 import { expect } from 'chai';
 import { spawn } from 'child_process';
 import { FFMpegProgress, FFMpegProgressData } from '../src/';
-import { before } from 'mocha';
 
 const args0 = [
   '-y',

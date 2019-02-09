@@ -66,19 +66,18 @@ export class FFMpegProgress extends Transform {
       const data: FFMpegProgressData = {};
       const info = str
         .split('\n')[0]
+        .replace(/=\s+/g, '=')
         .trim()
-        .split(/[\=\s]+/g);
-      for (let i = 0; i < info.length; i += 2) {
-        info[i] === 'Lsize'
-          ? (data['size'] = info[i + 1])
-          : (data[info[i]] = info[i + 1]);
-      }
-      data.time_ms = timeString2msec(data.time);
+        .split(/\s+/g);
+      info.forEach(kv => {
+        const [k, v] = kv.split('=');
+        const key = k === 'Lsize' ? 'size' : k;
+        data[key] = v;
+      });
+      data.time_ms = timeString2msec(data.time!);
       if (this.duration) {
-        data.progress = +(100 * data.time_ms / this.duration).toFixed(2);
-        data.remaining = Math.floor(
-          (this.duration - data.time_ms) * parseFloat(data.speed)
-        );
+        data.progress = +((100 * data.time_ms) / this.duration).toFixed(2);
+        data.remaining = Math.floor((this.duration - data.time_ms) * parseFloat(data.speed!));
       }
       this.push(data);
     } else {
