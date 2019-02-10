@@ -62,13 +62,35 @@ export class FFMpegProgress extends Transform {
 
   _transform(chunk: Buffer, encoding: string, done: Function) {
     const str: string = chunk.toString();
-    if (str.indexOf('frame=') === 0) {
-      const data: FFMpegProgressData = {};
-      const info = str
-        .split('\n')[0]
-        .replace(/=\s+/g, '=')
-        .trim()
-        .split(/\s+/g);
+    const progressEvent = parseProgress(str, this.duration);
+    if (progressEvent) {
+      this.push(progressEvent);
+    } else {
+      if (!this.duration && !progressEvent) {
+        const re = /(^|Duration: )(\d\d:\d\d:\d\d\.\d\d)/;
+        const match = str.match(re);
+        if (match && match[2]) {
+          this.duration = humanTime2msec(match[2]);
+        }
+      }
+      this.exitMessage = str.split('\n').splice(-2)[0];
+    }
+    done();
+  }
+}
+
+/**
+ *
+ * @param data
+ * @param duration video duration (milliseconds)
+ */
+export function parseProgress(data: string, duration?: number): FFMpegProgressEvent | undefined {
+  if (data.indexOf('frame=') === 0) {
+    const evt = <FFMpegProgressEvent>{};
+    const info = data
+      .replace(/=\s+/g, '=')
+      .trim()
+      .split(/\s+/g);
       info.forEach(kv => {
         const [k, v] = kv.split('=');
         const key = k === 'Lsize' ? 'size' : k;
