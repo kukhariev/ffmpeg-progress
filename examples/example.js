@@ -2,7 +2,7 @@
 const FFMPEG_PATH = '/usr/bin/ffmpeg';
 
 const { spawn } = require('child_process');
-const { FFMpegProgress, FFMpegProgressData } = require('../lib');
+const { FFMpegProgress } = require('../lib');
 
 const args = [
   '-y',
@@ -16,9 +16,7 @@ const args = [
 ];
 const ffmpegProgress = new FFMpegProgress();
 const ffmpeg = spawn(FFMPEG_PATH, args);
-/**
- * @param {FFMpegProgressData} progressData
- */
+
 function logProgress(progressData) {
   console.log(progressData);
 }

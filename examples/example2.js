@@ -28,7 +28,7 @@ ffmpeg.stdout.on('data', logProgress);
 
 ffmpeg.on('close', code => {
   if (code) {
-    console.error(`FFMPEG ERROR: ${ffmpegProgress.exitMessage}`);
+    console.error(`FFMPEG ERROR`);
   } else {
     console.log('DONE.');
   }
