@@ -25,7 +25,21 @@ const args1 = [
   'mp4',
   `${tmp}/o.mp4`
 ];
-const arg3 = ['-y', '-i', 'badfile', '-f', 'mp4', `${tmp}/o.mp4`];
+const args3 = ['-y', '-hide_banner', '-i', 'badfile', '-f', 'mp4', `${tmp}/o.mp4`];
+const args4 = [
+  '-y',
+  '-hide_banner',
+  '-nostats',
+  '-progress',
+  '-',
+  '-i',
+  `${tmp}/testfile.mp4`,
+  '-r',
+  '25',
+  '-f',
+  'mp4',
+  `${tmp}/o.mp4`
+];
 
 describe('ffmpeg-progress', () => {
   it('should not include some keys', done => {
@@ -45,13 +59,32 @@ describe('ffmpeg-progress', () => {
     const ffmpeg = spawn(FFMPEG_PATH, args1);
     const ffmpegProgress = new FFMpegProgress();
     ffmpegProgress.duration = 10000;
-    ffmpeg.stderr
-      .pipe(ffmpegProgress)
-      .on('data', (progress: FFMpegProgressData) => {
-        expect(progress).to.include.keys(
-          'bitrate',
-          'fps',
-          'frame',
+    ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      expect(progress).to.include.keys(
+        'bitrate',
+        'fps',
+        'frame',
+        'percentage',
+        'size',
+        'speed',
+        'time',
+        'time_ms',
+        'remaining'
+      );
+    });
+    ffmpeg.on('close', code => {
+      done(code);
+    });
+  });
+  it('should be able to process -progress info ', done => {
+    const ffmpeg = spawn(FFMPEG_PATH, args4);
+    const ffmpegProgress = new FFMpegProgress();
+    ffmpegProgress.duration = 10000;
+    ffmpeg.stdout.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      expect(progress).to.include.keys(
+        'bitrate',
+        'fps',
+        'frame',
           'progress',
           'size',
           'speed',
