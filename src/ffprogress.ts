@@ -95,9 +95,7 @@ export function parseProgress(data: string, duration?: number): FFMpegProgressEv
           break;
         case 'bitrate':
         case 'speed':
-
         evt[k] = parseFloat(v);
-          console.log(v, evt[k]);
           break;
         case 'Lsize':
         case 'size':
