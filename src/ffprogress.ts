@@ -3,36 +3,32 @@ import { Transform } from 'stream';
  * Progress  events
  * @public
  */
-export class FFMpegProgressData {
-  frame?: string;
-  fps?: string;
-  q?: string;
-  size?: string;
-  time?: string;
-  bitrate?: string;
-  dup?: string;
-  drop?: string;
-  speed?: string;
+
+export interface FFMpegProgressEvent {
+  frame: number;
+  fps: number;
+  size: number;
+  time: string;
+  bitrate: number;
+  speed: number;
   /**
-   * Time (msec)
+   * Time (milliseconds)
    */
-  time_ms?: number;
+  time_ms: number;
   /**
-   * ETA (msec)
+   * ETA (milliseconds)
    */
   remaining?: number;
   /**
    * Progress percentage
    */
-  progress?: number;
+  percentage?: number;
 }
-
-const durationRegex = /Duration:[\n\s]?(.*)[\n\s]?, start:[\n\s]?(.*)\,/;
 
 /**
  * convert HH:MM:SS.mss to milliseconds
  */
-function timeString2msec(timeString: string): number {
+function humanTime2msec(timeString: string): number {
   const [h, m, s] = timeString.split(':');
   return (+h * 36e5 + +m * 6e4 + +s * 1e3) | 0;
 }
@@ -41,7 +37,6 @@ function timeString2msec(timeString: string): number {
  * @public
  */
 export class FFMpegProgress extends Transform {
-  private acc = '';
   /**
    * last ffmpeg stderr message
    * @beta
@@ -49,8 +44,7 @@ export class FFMpegProgress extends Transform {
   exitMessage = '';
   /**
    * Creates an instance of FFMpegProgress.
-   * @param duration - video duration
-   * @remarks
+   * @param duration - video duration (milliseconds)
    * If parameter is omitted - will attempt to auto-detect media duration
    */
   constructor(public duration: number = 0) {
@@ -60,7 +54,7 @@ export class FFMpegProgress extends Transform {
     });
   }
 
-  _transform(chunk: Buffer, encoding: string, done: Function) {
+  _transform(chunk: Buffer, encoding: string, done: () => void) {
     const str: string = chunk.toString();
     const progressEvent = parseProgress(str, this.duration);
     if (progressEvent) {
@@ -91,27 +85,45 @@ export function parseProgress(data: string, duration?: number): FFMpegProgressEv
       .replace(/=\s+/g, '=')
       .trim()
       .split(/\s+/g);
+
     info.forEach(kv => {
       const [k, v] = kv.split('=');
-        const key = k === 'Lsize' ? 'size' : k;
-        data[key] = v;
-      });
-      data.time_ms = timeString2msec(data.time!);
-      if (this.duration) {
-        data.progress = +((100 * data.time_ms) / this.duration).toFixed(2);
-        data.remaining = Math.floor((this.duration - data.time_ms) * parseFloat(data.speed!));
+      switch (k) {
+        case 'frame':
+        case 'fps':
+          evt[k] = +v;
+          break;
+        case 'bitrate':
+        case 'speed':
+
+        evt[k] = parseFloat(v);
+          console.log(v, evt[k]);
+          break;
+        case 'Lsize':
+        case 'size':
+          evt['size'] = parseInt(v) * 1024;
+          break;
+        case 'total_size':
+          evt['size'] = +v;
+          break;
+        case 'out_time':
+        case 'time':
+          evt['time'] = v;
+          evt.time_ms = humanTime2msec(evt.time);
+          break;
+        default:
+          if (v) {
+            evt[k] = v;
+          }
+          break;
       }
-      this.push(data);
-    } else {
-      if (!this.duration) {
-        this.acc = this.acc + str;
-        const match = this.acc.match(durationRegex);
-        if (match && match[1]) {
-          this.duration = timeString2msec(match[1]);
-        }
-      }
-      this.exitMessage = str.split('\n').splice(-2)[0];
+    });
+
+    if (duration) {
+      evt.percentage = +((100 * evt.time_ms) / duration).toFixed(2);
+      evt.remaining = Math.floor((duration - evt.time_ms) * evt.speed);
     }
-    done();
+    return evt;
   }
+  return;
 }

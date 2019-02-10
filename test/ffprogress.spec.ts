@@ -4,19 +4,20 @@ const FFMPEG_PATH = ffmpeg.path;
 const tmp = os.tmpdir();
 import { expect } from 'chai';
 import { spawn } from 'child_process';
-import { FFMpegProgress, FFMpegProgressData } from '../src/';
+import { FFMpegProgress, FFMpegProgressEvent, parseProgress } from '../src/';
 
 const args0 = [
   '-y',
+  '-hide_banner',
   '-f',
   'lavfi',
   '-i',
   'testsrc=duration=10:size=640x360:rate=50',
   `${tmp}/testfile.mp4`
 ];
-
 const args1 = [
   '-y',
+  '-hide_banner',
   '-i',
   `${tmp}/testfile.mp4`,
   '-r',
@@ -41,17 +42,15 @@ const args4 = [
   `${tmp}/o.mp4`
 ];
 
-describe('ffmpeg-progress', () => {
+describe('FFMpegProgress', () => {
   it('should not include some keys', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args0);
     const ffmpegProgress = new FFMpegProgress();
-    ffmpeg.stderr
-      .pipe(ffmpegProgress)
-      .on('data', (progress: FFMpegProgressData) => {
-        expect(progress).to.not.have.any.keys('progress', 'remaining');
-      });
+    ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      expect(progress).to.not.have.any.keys('percentage', 'remaining');
+    });
     ffmpeg.on('close', code => {
-      done();
+      done(code);
     });
   });
 
@@ -85,31 +84,32 @@ describe('ffmpeg-progress', () => {
         'bitrate',
         'fps',
         'frame',
-          'progress',
-          'size',
-          'speed',
-          'time',
-          'time_ms',
-          'remaining'
-        );
-      });
+        'percentage',
+        'size',
+        'speed',
+        'time',
+        'time_ms',
+        'remaining'
+      );
+    });
     ffmpeg.on('close', code => {
-      done();
+      done(code);
     });
   });
   it('should be able to report duration', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args1);
     const ffmpegProgress = new FFMpegProgress();
-    ffmpeg.stderr
-      .pipe(ffmpegProgress)
-      .on('data', (progress: FFMpegProgressData) => {});
+
+    ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      ffmpeg.kill();
+    });
     ffmpeg.on('close', code => {
       expect(ffmpegProgress.duration).to.be.equal(10000);
       done();
     });
   });
   it('should be able to report error message', done => {
-    const ffmpeg = spawn(FFMPEG_PATH, arg3);
+    const ffmpeg = spawn(FFMPEG_PATH, args3);
     const ffmpegProgress = new FFMpegProgress();
     ffmpeg.stderr.pipe(ffmpegProgress);
     ffmpeg.on('close', code => {
@@ -158,7 +158,9 @@ describe('parseProgress', () => {
         'time_ms',
         'remaining'
       );
-      done();
+    });
+    ffmpeg.on('close', code => {
+      done(code);
     });
   });
 });
