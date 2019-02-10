@@ -1,5 +1,5 @@
 /**
- * Extract progress status from FFMPEG stderr.
+ * Extract progress status.
  */
 
 export * from './ffprogress';

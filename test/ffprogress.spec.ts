@@ -4,19 +4,20 @@ const FFMPEG_PATH = ffmpeg.path;
 const tmp = os.tmpdir();
 import { expect } from 'chai';
 import { spawn } from 'child_process';
-import { FFMpegProgress, FFMpegProgressData } from '../src/';
+import { FFMpegProgress, FFMpegProgressEvent, parseProgress } from '../src/';
 
 const args0 = [
   '-y',
+  '-hide_banner',
   '-f',
   'lavfi',
   '-i',
   'testsrc=duration=10:size=640x360:rate=50',
   `${tmp}/testfile.mp4`
 ];
-
 const args1 = [
   '-y',
+  '-hide_banner',
   '-i',
   `${tmp}/testfile.mp4`,
   '-r',
@@ -25,19 +26,31 @@ const args1 = [
   'mp4',
   `${tmp}/o.mp4`
 ];
-const arg3 = ['-y', '-i', 'badfile', '-f', 'mp4', `${tmp}/o.mp4`];
+const args3 = ['-y', '-hide_banner', '-i', 'badfile', '-f', 'mp4', `${tmp}/o.mp4`];
+const args4 = [
+  '-y',
+  '-hide_banner',
+  '-nostats',
+  '-progress',
+  '-',
+  '-i',
+  `${tmp}/testfile.mp4`,
+  '-r',
+  '25',
+  '-f',
+  'mp4',
+  `${tmp}/o.mp4`
+];
 
-describe('ffmpeg-progress', () => {
+describe('FFMpegProgress', () => {
   it('should not include some keys', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args0);
     const ffmpegProgress = new FFMpegProgress();
-    ffmpeg.stderr
-      .pipe(ffmpegProgress)
-      .on('data', (progress: FFMpegProgressData) => {
-        expect(progress).to.not.have.any.keys('progress', 'remaining');
-      });
+    ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      expect(progress).to.not.have.any.keys('percentage', 'remaining');
+    });
     ffmpeg.on('close', code => {
-      done();
+      done(code);
     });
   });
 
@@ -45,45 +58,109 @@ describe('ffmpeg-progress', () => {
     const ffmpeg = spawn(FFMPEG_PATH, args1);
     const ffmpegProgress = new FFMpegProgress();
     ffmpegProgress.duration = 10000;
-    ffmpeg.stderr
-      .pipe(ffmpegProgress)
-      .on('data', (progress: FFMpegProgressData) => {
-        expect(progress).to.include.keys(
-          'bitrate',
-          'fps',
-          'frame',
-          'progress',
-          'size',
-          'speed',
-          'time',
-          'time_ms',
-          'remaining'
-        );
-      });
+    ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      expect(progress).to.include.keys(
+        'bitrate',
+        'fps',
+        'frame',
+        'percentage',
+        'size',
+        'speed',
+        'time',
+        'time_ms',
+        'remaining'
+      );
+    });
     ffmpeg.on('close', code => {
-      done();
+      done(code);
+    });
+  });
+  it('should be able to process -progress info ', done => {
+    const ffmpeg = spawn(FFMPEG_PATH, args4);
+    const ffmpegProgress = new FFMpegProgress();
+    ffmpegProgress.duration = 10000;
+    ffmpeg.stdout.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      expect(progress).to.include.keys(
+        'bitrate',
+        'fps',
+        'frame',
+        'percentage',
+        'size',
+        'speed',
+        'time',
+        'time_ms',
+        'remaining'
+      );
+    });
+    ffmpeg.on('close', code => {
+      done(code);
     });
   });
   it('should be able to report duration', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args1);
     const ffmpegProgress = new FFMpegProgress();
-    ffmpeg.stderr
-      .pipe(ffmpegProgress)
-      .on('data', (progress: FFMpegProgressData) => {});
+
+    ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      ffmpeg.kill();
+    });
     ffmpeg.on('close', code => {
       expect(ffmpegProgress.duration).to.be.equal(10000);
       done();
     });
   });
   it('should be able to report error message', done => {
-    const ffmpeg = spawn(FFMPEG_PATH, arg3);
+    const ffmpeg = spawn(FFMPEG_PATH, args3);
     const ffmpegProgress = new FFMpegProgress();
     ffmpeg.stderr.pipe(ffmpegProgress);
     ffmpeg.on('close', code => {
-      expect(ffmpegProgress.exitMessage).to.be.equal(
-        'badfile: No such file or directory'
-      );
+      expect(ffmpegProgress.exitMessage).to.be.equal('badfile: No such file or directory');
       done();
+    });
+  });
+});
+describe('parseProgress', () => {
+  it('should be able to report progress', done => {
+    const ffmpeg = spawn(FFMPEG_PATH, args1);
+    ffmpeg.stderr.on('data', data => {
+      const progress = parseProgress(data.toString(), 10000);
+      if (progress) {
+        expect(progress).to.include.keys(
+          'bitrate',
+          'fps',
+          'frame',
+          'percentage',
+          'size',
+          'speed',
+          'time',
+          'time_ms',
+          'remaining'
+        );
+      }
+    });
+    ffmpeg.on('close', code => {
+      done(code);
+    });
+  });
+  it('should be able to process -progress info ', done => {
+    const ffmpeg = spawn(FFMPEG_PATH, args4);
+
+    ffmpeg.stdout.on('data', data => {
+      const progress = parseProgress(data.toString(), 10000);
+
+      expect(progress).to.include.keys(
+        'bitrate',
+        'fps',
+        'frame',
+        'percentage',
+        'size',
+        'speed',
+        'time',
+        'time_ms',
+        'remaining'
+      );
+    });
+    ffmpeg.on('close', code => {
+      done(code);
     });
   });
 });
