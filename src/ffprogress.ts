@@ -91,8 +91,8 @@ export function parseProgress(data: string, duration?: number): FFMpegProgressEv
       .replace(/=\s+/g, '=')
       .trim()
       .split(/\s+/g);
-      info.forEach(kv => {
-        const [k, v] = kv.split('=');
+    info.forEach(kv => {
+      const [k, v] = kv.split('=');
         const key = k === 'Lsize' ? 'size' : k;
         data[key] = v;
       });
