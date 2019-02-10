@@ -80,8 +80,50 @@ describe('ffmpeg-progress', () => {
     const ffmpegProgress = new FFMpegProgress();
     ffmpeg.stderr.pipe(ffmpegProgress);
     ffmpeg.on('close', code => {
-      expect(ffmpegProgress.exitMessage).to.be.equal(
-        'badfile: No such file or directory'
+      expect(ffmpegProgress.exitMessage).to.be.equal('badfile: No such file or directory');
+      done();
+    });
+  });
+});
+describe('parseProgress', () => {
+  it('should be able to report progress', done => {
+    const ffmpeg = spawn(FFMPEG_PATH, args1);
+    ffmpeg.stderr.on('data', data => {
+      const progress = parseProgress(data.toString(), 10000);
+      if (progress) {
+        expect(progress).to.include.keys(
+          'bitrate',
+          'fps',
+          'frame',
+          'percentage',
+          'size',
+          'speed',
+          'time',
+          'time_ms',
+          'remaining'
+        );
+      }
+    });
+    ffmpeg.on('close', code => {
+      done(code);
+    });
+  });
+  it('should be able to process -progress info ', done => {
+    const ffmpeg = spawn(FFMPEG_PATH, args4);
+
+    ffmpeg.stdout.on('data', data => {
+      const progress = parseProgress(data.toString(), 10000);
+
+      expect(progress).to.include.keys(
+        'bitrate',
+        'fps',
+        'frame',
+        'percentage',
+        'size',
+        'speed',
+        'time',
+        'time_ms',
+        'remaining'
       );
       done();
     });
