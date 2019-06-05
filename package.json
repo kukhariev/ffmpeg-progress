@@ -8,8 +8,8 @@
     "clean": "rimraf lib",
     "build": "npm run tslint && npm run clean && npm run build-ts ",
     "watch": "tsc-watch",
-    "test": "./node_modules/.bin/mocha",
-    "test:watch": "./node_modules/.bin/mocha --watch",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
     "build-ts": "tsc",
     "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
@@ -22,16 +22,16 @@
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/ffmpeg-static": "^2.0.0",
-    "@types/mocha": "^5.2.5",
+    "@types/mocha": "^5.2.7",
     "@types/node": "^8.10.39",
     "chai": "^4.2.0",
     "ffmpeg-static": "^2.4.0",
-    "mocha": "^5.2.0",
+    "mocha": "^6.1.4",
     "rimraf": "^2.6.3",
-    "ts-node": "^5.0.1",
-    "tsc-watch": "^1.1.35",
-    "tslint": "^5.12.1",
-    "typescript": "^2.9.2"
+    "ts-node": "^8.2.0",
+    "tsc-watch": "^2.2.1",
+    "tslint": "^5.17.0",
+    "typescript": "^3.4.5"
   },
   "dependencies": {}
 }
