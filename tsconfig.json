@@ -3,11 +3,28 @@
   "compilerOptions": {
     "module": "commonjs",
     "outDir": "./lib",
-    "target": "es2015",
+    "baseUrl": "src",
+    "target": "es2017",
     "moduleResolution": "node",
     "declaration": true,
-    // "noImplicitAny": true
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "noFallthroughCasesInSwitch": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "stripInternal": true,
+    "keyofStringsOnly": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "declarationDir": "./lib/types"
   },
-  "include": ["./src/**/*"],
-  "exclude": ["./test/*.spec.ts"]
+  "include": ["src/**/*", "test/**/*", "examples/**/*"],
+  "exclude": ["node_modules"]
 }

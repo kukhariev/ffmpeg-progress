@@ -1,19 +1,9 @@
-
 const FFMPEG_PATH = '/usr/bin/ffmpeg';
 
 const { spawn } = require('child_process');
 const { FFMpegProgress } = require('../lib');
 
-const args = [
-  '-y',
-  '-i',
-  '/tmp/testfile.mp4',
-  '-r',
-  '30',
-  '-f',
-  'mp4',
-  '/tmp/o.mp4'
-];
+const args = ['-y', '-i', '/tmp/testfile.mp4', '-r', '30', '-f', 'mp4', '/tmp/o.mp4'];
 const ffmpegProgress = new FFMpegProgress();
 const ffmpeg = spawn(FFMPEG_PATH, args);
 

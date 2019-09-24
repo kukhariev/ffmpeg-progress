@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import * as os from 'os';
 import * as ffmpeg from 'ffmpeg-static';
 const FFMPEG_PATH = ffmpeg.path;
 const tmp = os.tmpdir();
-import { expect } from 'chai';
 import { spawn } from 'child_process';
 import { FFMpegProgress, FFMpegProgressEvent, parseProgress } from '../src/';
 
@@ -47,7 +48,8 @@ describe('FFMpegProgress', () => {
     const ffmpeg = spawn(FFMPEG_PATH, args0);
     const ffmpegProgress = new FFMpegProgress();
     ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
-      expect(progress).to.not.have.any.keys('percentage', 'remaining');
+      expect(progress).not.toHaveProperty('percentage');
+      expect(progress).not.toHaveProperty('remaining');
     });
     ffmpeg.on('close', code => {
       done(code);
@@ -59,16 +61,18 @@ describe('FFMpegProgress', () => {
     const ffmpegProgress = new FFMpegProgress();
     ffmpegProgress.duration = 10000;
     ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
-      expect(progress).to.include.keys(
-        'bitrate',
-        'fps',
-        'frame',
-        'percentage',
-        'size',
-        'speed',
-        'time',
-        'time_ms',
-        'remaining'
+      expect(Object.keys(progress)).toEqual(
+        expect.arrayContaining([
+          'bitrate',
+          'fps',
+          'frame',
+          'percentage',
+          'size',
+          'speed',
+          'time',
+          'time_ms',
+          'remaining'
+        ])
       );
     });
     ffmpeg.on('close', code => {
@@ -80,16 +84,18 @@ describe('FFMpegProgress', () => {
     const ffmpegProgress = new FFMpegProgress();
     ffmpegProgress.duration = 10000;
     ffmpeg.stdout.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
-      expect(progress).to.include.keys(
-        'bitrate',
-        'fps',
-        'frame',
-        'percentage',
-        'size',
-        'speed',
-        'time',
-        'time_ms',
-        'remaining'
+      expect(Object.keys(progress)).toEqual(
+        expect.arrayContaining([
+          'bitrate',
+          'fps',
+          'frame',
+          'percentage',
+          'size',
+          'speed',
+          'time',
+          'time_ms',
+          'remaining'
+        ])
       );
     });
     ffmpeg.on('close', code => {
@@ -100,11 +106,11 @@ describe('FFMpegProgress', () => {
     const ffmpeg = spawn(FFMPEG_PATH, args1);
     const ffmpegProgress = new FFMpegProgress();
 
-    ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+    ffmpeg.stderr.pipe(ffmpegProgress).on('data', (evt: FFMpegProgressEvent) => {
       ffmpeg.kill();
     });
     ffmpeg.on('close', code => {
-      expect(ffmpegProgress.duration).to.be.equal(10000);
+      expect(ffmpegProgress.duration).toBe(10000);
       done();
     });
   });
@@ -113,7 +119,7 @@ describe('FFMpegProgress', () => {
     const ffmpegProgress = new FFMpegProgress();
     ffmpeg.stderr.pipe(ffmpegProgress);
     ffmpeg.on('close', code => {
-      expect(ffmpegProgress.exitMessage).to.be.equal('badfile: No such file or directory');
+      expect(ffmpegProgress.exitMessage).toMatch('badfile: No such file or directory');
       done();
     });
   });
@@ -124,16 +130,18 @@ describe('parseProgress', () => {
     ffmpeg.stderr.on('data', data => {
       const progress = parseProgress(data.toString(), 10000);
       if (progress) {
-        expect(progress).to.include.keys(
-          'bitrate',
-          'fps',
-          'frame',
-          'percentage',
-          'size',
-          'speed',
-          'time',
-          'time_ms',
-          'remaining'
+        expect(Object.keys(progress)).toEqual(
+          expect.arrayContaining([
+            'bitrate',
+            'fps',
+            'frame',
+            'percentage',
+            'size',
+            'speed',
+            'time',
+            'time_ms',
+            'remaining'
+          ])
         );
       }
     });
@@ -145,18 +153,20 @@ describe('parseProgress', () => {
     const ffmpeg = spawn(FFMPEG_PATH, args4);
 
     ffmpeg.stdout.on('data', data => {
-      const progress = parseProgress(data.toString(), 10000);
+      const progress = parseProgress(data.toString(), 10000) || {};
 
-      expect(progress).to.include.keys(
-        'bitrate',
-        'fps',
-        'frame',
-        'percentage',
-        'size',
-        'speed',
-        'time',
-        'time_ms',
-        'remaining'
+      expect(Object.keys(progress)).toEqual(
+        expect.arrayContaining([
+          'bitrate',
+          'fps',
+          'frame',
+          'percentage',
+          'size',
+          'speed',
+          'time',
+          'time_ms',
+          'remaining'
+        ])
       );
     });
     ffmpeg.on('close', code => {

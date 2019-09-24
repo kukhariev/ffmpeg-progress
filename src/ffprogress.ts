@@ -23,14 +23,70 @@ export interface FFMpegProgressEvent {
    * Progress percentage
    */
   percentage?: number;
+
+  [propName: string]: unknown;
 }
 
 /**
  * convert HH:MM:SS.mss to milliseconds
  */
 function humanTime2msec(timeString: string): number {
-  const [h, m, s] = timeString.split(':');
-  return (+h * 36e5 + +m * 6e4 + +s * 1e3) | 0;
+  const [h, m, s] = timeString.split(':').map(Number);
+  return (h * 36e5 + m * 6e4 + s * 1e3) | 0;
+}
+
+/**
+ *
+ * @param data
+ * @param duration video duration (milliseconds)
+ */
+export function parseProgress(data: string, duration?: number): FFMpegProgressEvent | undefined {
+  if (data.startsWith('frame=')) {
+    const evt = {} as FFMpegProgressEvent;
+    const info = data
+      .replace(/=\s+/g, '=')
+      .trim()
+      .split(/\s+/g);
+
+    info.forEach(kv => {
+      const [k, v] = kv.split('=');
+      switch (k) {
+        case 'frame':
+        case 'fps':
+          evt[k] = +v;
+          break;
+        case 'bitrate':
+        case 'speed':
+          evt[k] = parseFloat(v);
+          break;
+        case 'Lsize':
+        case 'size':
+          evt['size'] = parseInt(v) * 1024;
+          break;
+        case 'total_size':
+          evt['size'] = +v;
+          break;
+        case 'out_time':
+        case 'time':
+          evt['time'] = v;
+          // eslint-disable-next-line @typescript-eslint/camelcase
+          evt.time_ms = humanTime2msec(evt.time);
+          break;
+        default:
+          if (v) {
+            evt[k] = v;
+          }
+          break;
+      }
+    });
+
+    if (duration) {
+      evt.percentage = +((100 * evt.time_ms) / duration).toFixed(2);
+      evt.remaining = Math.floor((duration - evt.time_ms) * evt.speed);
+    }
+    return evt;
+  }
+  return;
 }
 /**
  * Extract progress status from FFMPEG stderr.
@@ -54,7 +110,7 @@ export class FFMpegProgress extends Transform {
     });
   }
 
-  _transform(chunk: Buffer, encoding: string, done: () => void) {
+  _transform(chunk: Buffer, encoding: string, done: () => void): void {
     const str: string = chunk.toString();
     const progressEvent = parseProgress(str, this.duration);
     if (progressEvent) {
@@ -62,7 +118,7 @@ export class FFMpegProgress extends Transform {
     } else {
       if (!this.duration && !progressEvent) {
         const re = /(^|Duration: )(\d\d:\d\d:\d\d\.\d\d)/;
-        const match = str.match(re);
+        const match = re.exec(str);
         if (match && match[2]) {
           this.duration = humanTime2msec(match[2]);
         }
@@ -71,57 +127,4 @@ export class FFMpegProgress extends Transform {
     }
     done();
   }
-}
-
-/**
- *
- * @param data
- * @param duration video duration (milliseconds)
- */
-export function parseProgress(data: string, duration?: number): FFMpegProgressEvent | undefined {
-  if (data.indexOf('frame=') === 0) {
-    const evt = <FFMpegProgressEvent>{};
-    const info = data
-      .replace(/=\s+/g, '=')
-      .trim()
-      .split(/\s+/g);
-
-    info.forEach(kv => {
-      const [k, v] = kv.split('=');
-      switch (k) {
-        case 'frame':
-        case 'fps':
-          evt[k] = +v;
-          break;
-        case 'bitrate':
-        case 'speed':
-        evt[k] = parseFloat(v);
-          break;
-        case 'Lsize':
-        case 'size':
-          evt['size'] = parseInt(v) * 1024;
-          break;
-        case 'total_size':
-          evt['size'] = +v;
-          break;
-        case 'out_time':
-        case 'time':
-          evt['time'] = v;
-          evt.time_ms = humanTime2msec(evt.time);
-          break;
-        default:
-          if (v) {
-            evt[k] = v;
-          }
-          break;
-      }
-    });
-
-    if (duration) {
-      evt.percentage = +((100 * evt.time_ms) / duration).toFixed(2);
-      evt.remaining = Math.floor((duration - evt.time_ms) * evt.speed);
-    }
-    return evt;
-  }
-  return;
 }

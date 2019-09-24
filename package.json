@@ -2,16 +2,18 @@
   "name": "@dropb/ffmpeg-progress",
   "version": "1.0.1",
   "description": "Extract progress status from FFMPEG",
+  "types": "lib/types/index.d.ts",
   "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "scripts": {
-    "clean": "rimraf lib",
-    "build": "npm run tslint && npm run clean && npm run build-ts ",
-    "watch": "tsc-watch",
-    "test": "mocha",
-    "test:watch": "mocha --watch",
-    "build-ts": "tsc",
-    "tslint": "tslint -c tslint.json -p tsconfig.json"
+    "build": "rimraf lib && tsc -p tsconfig.build.json",
+    "lint": "eslint \"{src,test,examples}/**/*.{ts,js}\" --fix",
+    "test": "jest"
   },
   "author": "kukhariev",
   "repository": {
@@ -20,18 +22,22 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/chai": "^4.1.7",
+    "@types/rimraf": "^2.0.2",
+    "@typescript-eslint/eslint-plugin": "^2.2.0",
+    "@typescript-eslint/parser": "^2.2.0",
+    "@types/jest": "^24.0.18",
+    "eslint": "^6.3.0",
+    "eslint-config-prettier": "^6.3.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "jest": "^24.9.0",
+    "prettier": "^1.18.2",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.1.0",
+    "ts-node-dev": "^1.0.0-pre.40",
+    "typescript": "^3.6.3",
     "@types/ffmpeg-static": "^2.0.0",
-    "@types/mocha": "^5.2.7",
     "@types/node": "^8.10.39",
-    "chai": "^4.2.0",
-    "ffmpeg-static": "^2.4.0",
-    "mocha": "^6.1.4",
-    "rimraf": "^2.6.3",
-    "ts-node": "^8.2.0",
-    "tsc-watch": "^2.2.1",
-    "tslint": "^5.17.0",
-    "typescript": "^3.4.5"
+    "ffmpeg-static": "^2.4.0"
   },
   "dependencies": {}
 }
