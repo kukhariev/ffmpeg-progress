@@ -44,7 +44,7 @@ const args4 = [
 ];
 
 describe('FFMpegProgress', () => {
-  it('should not include some keys', done => {
+  it('should not include `percentage`, `remaining` if no duration src ', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args0);
     const ffmpegProgress = new FFMpegProgress();
     ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
@@ -75,11 +75,9 @@ describe('FFMpegProgress', () => {
         ])
       );
     });
-    ffmpeg.on('close', code => {
-      done(code);
-    });
+    ffmpeg.on('close', done);
   });
-  it('should be able to process -progress info ', done => {
+  it('should be able to process stdout `-progress` info', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args4);
     const ffmpegProgress = new FFMpegProgress();
     ffmpegProgress.duration = 10000;
@@ -98,9 +96,7 @@ describe('FFMpegProgress', () => {
         ])
       );
     });
-    ffmpeg.on('close', code => {
-      done(code);
-    });
+    ffmpeg.on('close', done);
   });
   it('should be able to report duration', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args1);
@@ -111,7 +107,7 @@ describe('FFMpegProgress', () => {
     });
     ffmpeg.on('close', code => {
       expect(ffmpegProgress.duration).toBe(10000);
-      done();
+      done(code);
     });
   });
   it('should be able to report error message', done => {
@@ -125,7 +121,7 @@ describe('FFMpegProgress', () => {
   });
 });
 describe('parseProgress', () => {
-  it('should be able to report progress', done => {
+  it('should be able to parse progress', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args1);
     ffmpeg.stderr.on('data', data => {
       const progress = parseProgress(data.toString(), 10000);
@@ -145,11 +141,9 @@ describe('parseProgress', () => {
         );
       }
     });
-    ffmpeg.on('close', code => {
-      done(code);
-    });
+    ffmpeg.on('close', done);
   });
-  it('should be able to process -progress info ', done => {
+  it('should be able to process `-progress` info', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args4);
 
     ffmpeg.stdout.on('data', data => {
@@ -169,8 +163,6 @@ describe('parseProgress', () => {
         ])
       );
     });
-    ffmpeg.on('close', code => {
-      done(code);
-    });
+    ffmpeg.on('close', done);
   });
 });

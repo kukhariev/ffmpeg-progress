@@ -112,11 +112,11 @@ export class FFMpegProgress extends Transform {
 
   _transform(chunk: Buffer, encoding: string, done: () => void): void {
     const str: string = chunk.toString();
-    const progressEvent = parseProgress(str, this.duration);
-    if (progressEvent) {
-      this.push(progressEvent);
+    const evt = parseProgress(str, this.duration);
+    if (evt) {
+      this.push(evt);
     } else {
-      if (!this.duration && !progressEvent) {
+      if (!this.duration && !evt) {
         const re = /(^|Duration: )(\d\d:\d\d:\d\d\.\d\d)/;
         const match = re.exec(str);
         if (match && match[2]) {
