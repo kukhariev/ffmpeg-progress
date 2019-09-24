@@ -32,7 +32,7 @@ export interface FFMpegProgressEvent {
  */
 function humanTime2msec(timeString: string): number {
   const [h, m, s] = timeString.split(':').map(Number);
-  return (h * 36e5 + m * 6e4 + s * 1e3) | 0;
+  return Math.round(h * 36e5 + m * 6e4 + s * 1e3);
 }
 
 /**
