@@ -1,6 +1,6 @@
 {
   "name": "@dropb/ffmpeg-progress",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Extract progress status from FFMPEG",
   "types": "lib/types/index.d.ts",
   "main": "lib/index.js",
