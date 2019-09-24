@@ -57,11 +57,11 @@ export function parseProgress(data: string, duration?: number): FFMpegProgressEv
           break;
         case 'bitrate':
         case 'speed':
-          evt[k] = parseFloat(v);
+          evt[k] = Number.parseFloat(v);
           break;
         case 'Lsize':
         case 'size':
-          evt['size'] = parseInt(v) * 1024;
+          evt['size'] = Number.parseInt(v) * 1024;
           break;
         case 'total_size':
           evt['size'] = +v;
