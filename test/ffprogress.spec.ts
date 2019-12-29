@@ -3,6 +3,8 @@
 import * as os from 'os';
 import * as ffmpeg from 'ffmpeg-static';
 const FFMPEG_PATH = ffmpeg.path;
+jest.setTimeout(30000);
+
 const tmp = os.tmpdir();
 import { spawn } from 'child_process';
 import { FFMpegProgress, FFMpegProgressEvent, parseProgress } from '../src/';
