@@ -88,6 +88,7 @@ export function parseProgress(data: string, duration?: number): FFMpegProgressEv
   }
   return;
 }
+const DurationRegExp = /(^|Duration: )(\d\d:\d\d:\d\d\.\d\d)/;
 /**
  * Extract progress status from FFMPEG stderr.
  * @public
@@ -117,8 +118,7 @@ export class FFMpegProgress extends Transform {
       this.push(evt);
     } else {
       if (!this.duration && !evt) {
-        const re = /(^|Duration: )(\d\d:\d\d:\d\d\.\d\d)/;
-        const match = re.exec(str);
+        const match = DurationRegExp.exec(str);
         if (match && match[2]) {
           this.duration = humanTime2msec(match[2]);
         }
