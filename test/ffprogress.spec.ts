@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import * as os from 'os';
-import * as ffmpeg from 'ffmpeg-static';
-const FFMPEG_PATH = ffmpeg.path;
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const FFMPEG_PATH = require('ffmpeg-static');
+
 jest.setTimeout(30000);
 
 const tmp = os.tmpdir();
