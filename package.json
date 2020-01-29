@@ -30,7 +30,7 @@
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.9.0",
     "eslint-plugin-prettier": "^3.1.2",
-    "ffmpeg-static": "^3.0.0",
+    "ffmpeg-static": "^4.0.0",
     "jest": "^25.0.0",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
