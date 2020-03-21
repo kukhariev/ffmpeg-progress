@@ -32,7 +32,7 @@
     "eslint-plugin-prettier": "^3.1.2",
     "ffmpeg-static": "^4.0.0",
     "jest": "^25.0.0",
-    "prettier": "^1.19.1",
+    "prettier": "^2.0.0",
     "rimraf": "^3.0.0",
     "ts-jest": "^25.0.0",
     "ts-node-dev": "^1.0.0-pre.44",
