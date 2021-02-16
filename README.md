@@ -1,7 +1,7 @@
 # ffmpeg-progress
 
 [![npm](https://img.shields.io/npm/v/@dropb/ffmpeg-progress.svg?)](https://www.npmjs.com/package/@dropb/ffmpeg-progress)
-[![build](https://img.shields.io/travis/kukhariev/ffmpeg-progress.svg?)](https://travis-ci.org/kukhariev/ffmpeg-progress)
+[![Build Status](https://www.travis-ci.com/kukhariev/ffmpeg-progress.svg?branch=master)](https://www.travis-ci.com/kukhariev/ffmpeg-progress)
 
 Extract progress status from FFMPEG
 
