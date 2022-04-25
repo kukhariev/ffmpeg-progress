@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import * as os from 'os';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const FFMPEG_PATH = require('ffmpeg-static');
+const FFMPEG_PATH = require('ffmpeg-static') as string;
 
 jest.setTimeout(30000);
 
@@ -105,19 +103,17 @@ describe('FFMpegProgress', () => {
     const ffmpeg = spawn(FFMPEG_PATH, args1);
     const ffmpegProgress = new FFMpegProgress();
 
-    ffmpeg.stderr.pipe(ffmpegProgress).on('data', (evt: FFMpegProgressEvent) => {
-      ffmpeg.kill();
-    });
-    ffmpeg.on('close', code => {
+    ffmpeg.stderr.pipe(ffmpegProgress).on('data', () => {
       expect(ffmpegProgress.duration).toBe(10000);
-      done(code);
+      ffmpeg.kill();
+      done();
     });
   });
   it('should be able to report error message', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args3);
     const ffmpegProgress = new FFMpegProgress();
     ffmpeg.stderr.pipe(ffmpegProgress);
-    ffmpeg.on('close', code => {
+    ffmpeg.on('close', () => {
       expect(ffmpegProgress.exitMessage).toMatch('badfile: No such file or directory');
       done();
     });

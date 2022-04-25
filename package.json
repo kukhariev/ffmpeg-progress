@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "rimraf lib && tsc -p tsconfig.build.json",
-    "lint": "eslint \"{src,test,examples}/**/*.{ts,js}\" --fix",
+    "lint": "eslint \"{src,test}/**/*.{ts,js}\" --fix",
     "test": "jest"
   },
   "author": "kukhariev",
