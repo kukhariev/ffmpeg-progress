@@ -104,11 +104,9 @@ describe('FFMpegProgress', () => {
     const ffmpegProgress = new FFMpegProgress();
 
     ffmpeg.stderr.pipe(ffmpegProgress).on('data', () => {
-      ffmpeg.kill();
-    });
-    ffmpeg.on('close', code => {
       expect(ffmpegProgress.duration).toBe(10000);
-      done(code);
+      ffmpeg.kill();
+      done();
     });
   });
   it('should be able to report error message', done => {
