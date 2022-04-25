@@ -123,7 +123,7 @@ describe('parseProgress', () => {
   it('should be able to parse progress', done => {
     const ffmpeg = spawn(FFMPEG_PATH, args1);
     ffmpeg.stderr.on('data', data => {
-      const progress = parseProgress(data.toString(), 10000);
+      const progress = parseProgress(String(data), 10000);
       if (progress) {
         expect(Object.keys(progress)).toEqual(
           expect.arrayContaining([
@@ -146,7 +146,7 @@ describe('parseProgress', () => {
     const ffmpeg = spawn(FFMPEG_PATH, args4);
 
     ffmpeg.stdout.on('data', data => {
-      const progress = parseProgress(data.toString(), 10000) || {};
+      const progress = parseProgress(String(data), 10000) || {};
 
       expect(Object.keys(progress)).toEqual(
         expect.arrayContaining([
