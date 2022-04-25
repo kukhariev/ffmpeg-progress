@@ -43,10 +43,7 @@ function humanTime2msec(timeString: string): number {
 export function parseProgress(data: string, duration?: number): FFMpegProgressEvent | undefined {
   if (data.startsWith('frame=')) {
     const evt = {} as FFMpegProgressEvent;
-    const info = data
-      .replace(/=\s+/g, '=')
-      .trim()
-      .split(/\s+/g);
+    const info = data.replace(/=\s+/g, '=').trim().split(/\s+/g);
 
     info.forEach(kv => {
       const [k, v] = kv.split('=');
@@ -69,7 +66,6 @@ export function parseProgress(data: string, duration?: number): FFMpegProgressEv
         case 'out_time':
         case 'time':
           evt['time'] = v;
-          // eslint-disable-next-line @typescript-eslint/camelcase
           evt.time_ms = humanTime2msec(evt.time);
           break;
         default:
