@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/@dropb/ffmpeg-progress.svg?)](https://www.npmjs.com/package/@dropb/ffmpeg-progress)
 [![CI](https://github.com/kukhariev/ffmpeg-progress/actions/workflows/test.yml/badge.svg)](https://github.com/kukhariev/ffmpeg-progress/actions/workflows/test.yml)
 
-Extract progress status from FFMPEG
+Extract progress status from FFmpeg
 
 ## Install
 
@@ -18,7 +18,7 @@ see [examples](./examples/)
 ## API
 ###
 ```ts
-interface FFMpegProgressEvent {
+interface FfmpegProgressEvent {
   frame: number;
   fps: number;
   size: number;
@@ -39,13 +39,13 @@ interface FFMpegProgressEvent {
   percentage?: number;
 }
 ```
-### FFMpegProgress Pipe
+### FfmpegProgress Pipe
 
 ```ts
-new FFMpegProgress(duration?: number)
+new FfmpegProgress(duration?: number)
 ```
 
-Creates an instance of FFMpegProgress Pipe.
+Creates an instance of FfmpegProgress Pipe.
 (optional) `duration` - override video duration (milliseconds). Default - auto detect.
 
 public properties:
@@ -56,7 +56,7 @@ public properties:
 ### parseProgress
 
 ```ts
-parseProgress(data: string, duration?: number): FFMpegProgressEvent
+parseProgress(data: string, duration?: number): FfmpegProgressEvent
 ```
 ## License
 

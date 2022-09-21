@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { FFMpegProgress, FFMpegProgressEvent, parseProgress } from '../src';
+import { FfmpegProgress, FfmpegProgressEvent, parseProgress } from '../src';
 import { ffmpegPath } from '../config';
 import * as rimraf from 'rimraf';
 import { tmpdir } from 'os';
@@ -24,14 +24,14 @@ const args = {
   3: ['-y', '-nostats', '-progress', '-', '-i', inputFile, `${tmp}/3.mp4`],
   4: ['-y', '-i', corruptFile, `${tmp}/4.mp4`]
 };
-describe('FFMpegProgress', function () {
+describe('FfmpegProgress', function () {
   afterAll(() => rimraf.sync(tmp));
 
   describe('ffmpegProgress', () => {
     it('should not include `percentage`, `remaining` if no duration src', done => {
       const ffmpeg = spawn(ffmpegPath, args[0]);
-      const ffmpegProgress = new FFMpegProgress();
-      ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      const ffmpegProgress = new FfmpegProgress();
+      ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FfmpegProgressEvent) => {
         expect(progress).not.toHaveProperty('percentage');
         expect(progress).not.toHaveProperty('remaining');
       });
@@ -40,9 +40,9 @@ describe('FFMpegProgress', function () {
 
     it('should be able to report progress', done => {
       const ffmpeg = spawn(ffmpegPath, args[1]);
-      const ffmpegProgress = new FFMpegProgress();
+      const ffmpegProgress = new FfmpegProgress();
       ffmpegProgress.duration = 10000;
-      ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FfmpegProgressEvent) => {
         expect(Object.keys(progress)).toEqual(
           expect.arrayContaining([
             'bitrate',
@@ -62,9 +62,9 @@ describe('FFMpegProgress', function () {
 
     it('should be able to process stdout `-progress` info', done => {
       const ffmpeg = spawn(ffmpegPath, args[3]);
-      const ffmpegProgress = new FFMpegProgress();
+      const ffmpegProgress = new FfmpegProgress();
       ffmpegProgress.duration = 10000;
-      ffmpeg.stdout.pipe(ffmpegProgress).on('data', (progress: FFMpegProgressEvent) => {
+      ffmpeg.stdout.pipe(ffmpegProgress).on('data', (progress: FfmpegProgressEvent) => {
         expect(Object.keys(progress)).toEqual(
           expect.arrayContaining([
             'bitrate',
@@ -84,7 +84,7 @@ describe('FFMpegProgress', function () {
 
     it('should be able to report duration', done => {
       const ffmpeg = spawn(ffmpegPath, args[1]);
-      const ffmpegProgress = new FFMpegProgress();
+      const ffmpegProgress = new FfmpegProgress();
       ffmpeg.stderr.pipe(ffmpegProgress).on('data', () => {
         expect(ffmpegProgress.duration).toBe(10000);
         ffmpeg.kill();
@@ -94,7 +94,7 @@ describe('FFMpegProgress', function () {
 
     it('should be able to report error message', done => {
       const ffmpeg = spawn(ffmpegPath, args[2]);
-      const ffmpegProgress = new FFMpegProgress();
+      const ffmpegProgress = new FfmpegProgress();
       ffmpeg.stderr.pipe(ffmpegProgress);
       ffmpeg.on('close', () => {
         expect(ffmpegProgress.exitMessage).toMatch('bad file: No such file or directory');
