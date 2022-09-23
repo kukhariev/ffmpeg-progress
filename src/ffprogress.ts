@@ -99,6 +99,7 @@ export class FfmpegProgress extends Transform {
    * @beta
    */
   exitMessage = '';
+  header = '';
   /**
    * Creates an instance of FfmpegProgress.
    * @param duration - video duration (milliseconds)
@@ -110,18 +111,19 @@ export class FfmpegProgress extends Transform {
 
   _transform(chunk: Buffer, _encoding: string, done: () => void): void {
     const str = chunk.toString();
+    if (this.duration === 0) {
+      this.header += str;
+      const match = /(^|Duration: )(\d\d:\d\d:\d\d\.\d\d)/.exec(this.header);
+      if (match && match[2]) {
+        this.duration = humanTime2msec(match[2]);
+      } else if (this.header.includes('Duration: N/A') || this.header.length > 8 * 1024) {
+        this.duration = NaN;
+      }
+    }
     const evt = parseProgress(str, this.duration);
     if (evt) {
       this.push(evt);
     } else {
-      if (this.duration === 0) {
-        const match = /(^|Duration: )(\d\d:\d\d:\d\d\.\d\d)/.exec(str);
-        if (match && match[2]) {
-          this.duration = humanTime2msec(match[2]);
-        } else if (str.includes('Duration: N/A')) {
-          this.duration = NaN;
-        }
-      }
       this.exitMessage = str.split('\n').splice(-2)[0];
     }
     done();

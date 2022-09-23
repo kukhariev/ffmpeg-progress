@@ -24,7 +24,7 @@ const args = {
   3: ['-y', '-nostats', '-progress', '-', '-i', inputFile, `${tmp}/3.mp4`],
   4: ['-y', '-i', corruptFile, `${tmp}/4.mp4`]
 };
-describe('FfmpegProgress', function () {
+describe('FfmpegProgress', () => {
   afterAll(() => rimraf.sync(tmp));
 
   describe('ffmpegProgress', () => {
