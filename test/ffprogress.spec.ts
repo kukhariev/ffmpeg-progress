@@ -35,7 +35,10 @@ describe('FfmpegProgress', function () {
         expect(progress).not.toHaveProperty('percentage');
         expect(progress).not.toHaveProperty('remaining');
       });
-      ffmpeg.on('close', done);
+      ffmpeg.on('close', () => {
+        expect(ffmpegProgress.duration).toBeNaN();
+        done();
+      });
     });
 
     it('should be able to report progress', done => {

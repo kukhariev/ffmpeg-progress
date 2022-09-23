@@ -89,7 +89,6 @@ export function parseProgress(data: string, duration?: number): FfmpegProgressEv
   }
   return;
 }
-const DurationRegExp = /(^|Duration: )(\d\d:\d\d:\d\d\.\d\d)/;
 /**
  * Extract progress status from FFmpeg stderr.
  * @public
@@ -106,22 +105,21 @@ export class FfmpegProgress extends Transform {
    * If parameter is omitted - will attempt to auto-detect media duration
    */
   constructor(public duration: number = 0) {
-    super({
-      readableObjectMode: true,
-      writableObjectMode: true
-    });
+    super({ readableObjectMode: true });
   }
 
   _transform(chunk: Buffer, _encoding: string, done: () => void): void {
-    const str: string = chunk.toString();
+    const str = chunk.toString();
     const evt = parseProgress(str, this.duration);
     if (evt) {
       this.push(evt);
     } else {
-      if (!(this.duration || evt)) {
-        const match = DurationRegExp.exec(str);
+      if (this.duration === 0) {
+        const match = /(^|Duration: )(\d\d:\d\d:\d\d\.\d\d)/.exec(str);
         if (match && match[2]) {
           this.duration = humanTime2msec(match[2]);
+        } else if (str.includes('Duration: N/A')) {
+          this.duration = NaN;
         }
       }
       this.exitMessage = str.split('\n').splice(-2)[0];
