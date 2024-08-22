@@ -41,7 +41,7 @@ export function humanTime2msec(timeString: string): number {
  * @param duration video duration (milliseconds)
  */
 export function parseProgress(data: string, duration?: number): FfmpegProgressEvent | undefined {
-  if (data.startsWith('frame=')) {
+  if (data.startsWith('frame=') || data.startsWith('size=')) {
     const evt = {} as FfmpegProgressEvent;
     const info = data.replace(/=\s+/g, '=').trim().split(/\s+/g);
 

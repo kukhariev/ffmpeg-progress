@@ -17,6 +17,12 @@ function generateTestFile(filename, durationSec = 10.0) {
     'lavfi',
     '-i',
     `testsrc=duration=${durationSec}:size=640x360:rate=30`,
+    '-f',
+    'lavfi',
+    '-i',
+    `anullsrc=r=48000:cl=mono`,
+    '-shortest',
+
     filename
   ]);
 }
