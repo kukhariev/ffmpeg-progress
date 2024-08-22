@@ -22,7 +22,8 @@ const args = {
   1: ['-y', '-i', inputFile, `${tmp}/1.mp4`],
   2: ['-y', '-i', 'bad file', `${tmp}/2.mp4`],
   3: ['-y', '-nostats', '-progress', '-', '-i', inputFile, `${tmp}/3.mp4`],
-  4: ['-y', '-i', corruptFile, `${tmp}/4.mp4`]
+  4: ['-y', '-i', corruptFile, `${tmp}/4.mp4`],
+  5: ['-y', '-i', inputFile, '-vn', `${tmp}/5.mp4`]
 };
 describe('FfmpegProgress', () => {
   afterAll(() => rimraf.sync(tmp));
@@ -56,6 +57,26 @@ describe('FfmpegProgress', () => {
             'speed',
             'time',
             'time_ms',
+            'remaining'
+          ])
+        );
+      });
+      ffmpeg.on('close', done);
+    });
+
+    it('should be able to report audio only progress', done => {
+      const ffmpeg = spawn(ffmpegPath, args[5]);
+      const ffmpegProgress = new FfmpegProgress();
+      ffmpegProgress.duration = 10000;
+      ffmpeg.stderr.pipe(ffmpegProgress).on('data', (progress: FfmpegProgressEvent) => {
+        expect(Object.keys(progress)).toEqual(
+          expect.arrayContaining([
+            'size',
+            'time',
+            'time_ms',
+            'bitrate',
+            'speed',
+            'percentage',
             'remaining'
           ])
         );
