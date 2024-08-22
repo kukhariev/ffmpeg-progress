@@ -83,7 +83,7 @@ export function parseProgress(data: string, duration?: number): FfmpegProgressEv
 
     if (duration) {
       evt.percentage = +((100 * evt.time_ms) / duration).toFixed(2);
-      evt.remaining = Math.floor((duration - evt.time_ms) * evt.speed);
+      evt.remaining = Math.floor((duration - evt.time_ms) / evt.speed);
     }
     return evt;
   }
